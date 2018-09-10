@@ -9,12 +9,13 @@ def LTP_parse(content):
     # 允许连接不在know_hosts文件中的主机
     ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())#第一次登录的认证信息
     # 连接服务器
-    ssh.connect(hostname='210.72.13.22', port=22, username='root', password='!r@o#o$t@olm.com.cn')
+    ssh.connect(hostname='54.169.197.230', port=22, username='david', password='123@nus')
     # 执行命令
     cmd = 'curl -d "s='+content+'&f=xml&t=all" http://127.0.0.1:12306/ltp'
+    print(cmd)
     stdin, stdout, stderr = ssh.exec_command(cmd)
     # 获取命令结果
-    res,err = stdout.read(),stderr.read()
+    res,err = stdout.read(), stderr.read()
     result = res if res else err
     print(result.decode())
     # 关闭连接
@@ -37,7 +38,6 @@ if __name__=="__main__":
     parser.add_argument('-f', '--file', type=argparse.FileType('r'), help="Path to file")
 
     ARGS = parser.parse_args()
-    # print(ARGS)
     if ARGS.file is None and ARGS.content is not None:
         LTP_parse_content(ARGS)
     elif ARGS.file is not None and ARGS.content is None:
