@@ -25,7 +25,7 @@ class Extractor():
         self.cblocks = []
 
     # 获取网页源码
-    def getRawPage(self):
+    def getRawPage(self, encoding):
         try:
             resp = req.get(self.url, timeout=self.timeout)
         except Exception as e:
@@ -33,7 +33,7 @@ class Extractor():
 
         if DBUG: print(resp.encoding)
 
-        resp.encoding = "gb2312"
+        resp.encoding = encoding
 
         return resp.status_code, resp.text
 
@@ -66,8 +66,8 @@ class Extractor():
     def processImages(self):
         self.body = reIMG.sub(r'{{\1}}', self.body)
 
-    def getContext(self):
-        code, self.rawPage = self.getRawPage()
+    def getContext(self, encoding):
+        code, self.rawPage = self.getRawPage(encoding)
         self.body = re.findall(reBODY, self.rawPage)[0]
 
         if DBUG: print(code, self.rawPage)
@@ -75,10 +75,10 @@ class Extractor():
         if self.saveImage:
             self.processImages()
         self.processTags()
-        return self.processBlocks()
+        return re.sub("&nbsp;", '', self.processBlocks())
 
     def getTitle(self):
-        code, self.rawPage = self.getRawPage()
+        code, self.rawPage = self.getRawPage("gb2312")
         self.body = re.findall(reBODY, self.rawPage)[0]
 
         if DBUG: print(code, self.rawPage)
@@ -101,13 +101,12 @@ class Extractor():
         return result_list
 
     def getAll(self):
-        code, self.rawPage = self.getRawPage()
+        code, self.rawPage = self.getRawPage("gb2312")
         self.body = re.findall(reBODY, self.rawPage)[0]
         if '传入参数错误，请联系管理员！' in self.body:
             return {'flag': False}
         else:
-            context = re.sub("&nbsp;", '', ext.getContext())
-            context = re.sub("\u3000", '', context)
+            context = re.sub("\u3000", '', ext.getContext("gb2312"))
             titleAnddetails = self.getTitle()
             title = titleAnddetails[0]['title']
             detail = titleAnddetails[1]['details']
@@ -125,11 +124,21 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--context', type=bool, default=False,
                         help="Type: bool. Default: False. Get the web context")
     parser.add_argument('-o', '--output', help="Type: Str. Output file path")
+    parser.add_argument('-s', '--simple', help="Type: Str. Simple version. And -s is the encoding which u need to specify.")
+
 
     ARGS = parser.parse_args()
     print(ARGS)
     if ARGS.url is not None:
         ext = Extractor(url=ARGS.url, blockSize=5, image=False)
+
+        if ARGS.simple is not None:
+            res = ext.getContext(ARGS.simple)
+            print(res)
+            if ARGS.output is not None:
+                with open(ARGS.output, 'w+') as f:
+                    f.write(res)
+            sys.exit(0)
 
         if ext.getAll()['flag'] is True:
             if ARGS.all is True:
@@ -157,7 +166,6 @@ if __name__ == '__main__':
             if ARGS.output is not None:
                 with open(ARGS.output, 'w+') as f:
                     f.write('传入的URL有误，网站无此链接！')
-
     else:
         parser.print_help()
         sys.exit(0)
