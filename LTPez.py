@@ -3,34 +3,60 @@ import argparse
 import sys
 import xml.etree.ElementTree as ET
 
-def LTP_parse(content):
 
+def LTP_parse(content):
+    # 开启远程服务
+    # sudo docker run -d -p 12306:12345 ltp/ltp /ltp_server --last-stage all
     # 创建SSH对象
     ssh = paramiko.SSHClient()
     # 允许连接不在know_hosts文件中的主机
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())#第一次登录的认证信息
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())  # 第一次登录的认证信息
     # 连接服务器
     ssh.connect(hostname='54.169.197.230', port=22, username='david', password='123@nus')
     # 执行命令
-    cmd = 'curl -d "s='+content+'&f=xml&t=all" http://127.0.0.1:12306/ltp'
+    cmd = 'curl -d "s=' + content + '&f=xml&t=all" http://127.0.0.1:12306/ltp'
     # print(cmd)
     stdin, stdout, stderr = ssh.exec_command(cmd)
     # 获取命令结果
-    res,err = stdout.read(), stderr.read()
+    res, err = stdout.read(), stderr.read()
     result = res if res else err
     # print(result.decode())
     # 关闭连接
     ssh.close()
     return result.decode()
 
+
 def LTP_parse_file(file):
+    f = open(file, 'r')
     content = ""
-    for line in file:
+    for line in f:
         content += line.strip()
-    LTP_parse(content)
+    return LTP_parse(content)
+
+
+def LTP_parse_file_type(file, type, out_file):
+    data_types = 'title'.split(',')
+
+    with open(file, 'r') as f:
+        con_dict = eval(f.read())
+
+        for t in data_types:
+            print(con_dict[t], type)
+            types = type.split(',')
+            for each_type in types:
+                res = LTP_parse_content(con_dict[t], each_type)
+                if out_file is not None:
+                    with open(out_file, 'w+') as out_f:
+                        for each_w in res[each_type]:
+                            out_f.write(each_w + ' ')
+                        out_f.write('\n')
+
+
+
 
 def LTP_parse_content(content, type):
     tree = ET.fromstring(LTP_parse(content))
+
     res = {}
     docs = []
     global_paras = []
@@ -101,43 +127,64 @@ def LTP_parse_content(content, type):
         res['sents'] = global_sents
     if 'words' in type_list:
         res['words'] = global_words
-    if 'words_id' in type_list or 'wordsid' in type_list:
+    if 'words_id' in type_list:
         res['words_id'] = global_words_id
-    if 'words_cont' in type_list or 'wordscont' in type_list:
+    if 'words_cont' in type_list:
         res['words_cont'] = global_words_cont
-    if 'words_pos' in type_list or 'wordspos' in type_list:
+    if 'words_pos' in type_list:
         res['words_pos'] = global_words_pos
-    if 'words_ne' in type_list or 'wordsne' in type_list:
+    if 'words_ne' in type_list:
         res['words_ne'] = global_words_ne
-    if 'words_parent' in type_list or 'wordsparent' in type_list:
+    if 'words_parent' in type_list:
         res['words_parent'] = global_words_parent
-    if 'words_relate' in type_list or 'wordsrelate' in type_list:
+    if 'words_relate' in type_list:
         res['words_relate'] = global_words_relate
 
+    # print(res)
     return res
 
-if __name__=="__main__":
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='LTP 工具， 制作者David_狄')
 
     parser.add_argument('-c', '--content', help="content to analyze by LTP")
-    parser.add_argument('-f', '--file', type=argparse.FileType('r'), help="Path to file")
+    parser.add_argument('-f', '--file', help="Path to the input file")
     parser.add_argument('-t', '--type', help="get the special type list from the LTP result")
     parser.add_argument('-p', '--parser', type=bool, help='get the raw result of the LTP')
-    parser.add_argument('-a', '--abstract', type=bool, help='get the abstract result of the LTP, need the Type parameter')
+    parser.add_argument('-o', '--output', help="Path to the output file")
     ARGS = parser.parse_args()
 
     if ARGS.file is None and ARGS.content is not None:
         if ARGS.parser is not None:
-            print(LTP_parse(ARGS.content))
-        if ARGS.abstract is not None and ARGS.type is not None:
-            print(LTP_parse_content(ARGS.content, ARGS.type))
+            res = LTP_parse(ARGS.content)
+            print(res)
+            if ARGS.output is not None:
+                with open(ARGS.output, 'w+') as out:
+                    out.write(res)
         if ARGS.type is not None:
-            print(LTP_parse_content(ARGS.content, ARGS.type))
+            res = LTP_parse_content(ARGS.content, ARGS.type)
+            print(res)
+            types = ARGS.type.split(',')
+            if ARGS.output is not None:
+                with open(ARGS.output, 'w+') as out_f:
+                    for each_t in types:
+                        for each_w in res[each_t]:
+                            out_f.write(each_w + ' ')
+                        out_f.write('\n')
         else:
             parser.print_help()
             sys.exit(1)
-    elif ARGS.file is not None and ARGS.content is None and ARGS.parser is not None:
-        LTP_parse_file(ARGS.file)
+    elif ARGS.file is not None and ARGS.content is None:
+        if ARGS.parser is not None:
+            res = LTP_parse_file(ARGS.file)
+            print(res)
+            if ARGS.output is not None:
+                with open(ARGS.output, 'w+') as out:
+                    out.write(res)
+        if ARGS.type is not None:
+            out_file = None if ARGS.output is None else ARGS.output
+            print(LTP_parse_file_type(ARGS.file, ARGS.type, out_file))
+
     else:
         parser.print_help()
         sys.exit(1)
