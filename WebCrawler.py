@@ -78,5 +78,5 @@ class Extractor():
         # print(len(self.body.strip("\n")))
 
 if __name__ == '__main__':
-    ext = Extractor(url='http://www.harbin.gov.cn/art/2017/11/6/art_4965_95526.html',blockSize=5, image=False)
+    ext = Extractor(url='http://www.doc88.com/p-3354689216862.html', blockSize=5, image=False)
     print(ext.getContext())

@@ -1,6 +1,7 @@
 import paramiko
 import argparse
-import sys
+import sys, re
+import subprocess
 import xml.etree.ElementTree as ET
 
 
@@ -8,22 +9,27 @@ def LTP_parse(content):
     # 开启远程服务
     # sudo docker run -d -p 12306:12345 ltp/ltp /ltp_server --last-stage all
     # 创建SSH对象
-    ssh = paramiko.SSHClient()
+    # ssh = paramiko.SSHClient()
     # 允许连接不在know_hosts文件中的主机
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())  # 第一次登录的认证信息
+    # ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())  # 第一次登录的认证信息
     # 连接服务器
-    ssh.connect(hostname='54.169.197.230', port=22, username='david', password='123@nus')
+    # ssh.connect(hostname='54.169.197.230', port=22, username='david', password='123@nus')
     # 执行命令
     cmd = 'curl -d "s=' + content + '&f=xml&t=all" http://127.0.0.1:12306/ltp'
     # print(cmd)
-    stdin, stdout, stderr = ssh.exec_command(cmd)
+    # stdin, stdout, stderr = ssh.exec_command(cmd)
     # 获取命令结果
-    res, err = stdout.read(), stderr.read()
-    result = res if res else err
+    # res, err = stdout.read(), stderr.read()
+    # result = res if res else err
     # print(result.decode())
     # 关闭连接
-    ssh.close()
-    return result.decode()
+    # ssh.close()
+
+    # return result.decode()
+
+    result = subprocess.check_output(cmd, shell=True)
+
+    return result
 
 
 def LTP_parse_file(file):
@@ -35,23 +41,24 @@ def LTP_parse_file(file):
 
 
 def LTP_parse_file_type(file, type, out_file):
-    data_types = 'title'.split(',')
+    data_types = 'title,context'.split(',')
 
     with open(file, 'r') as f:
         con_dict = eval(f.read())
 
         for t in data_types:
-            print(con_dict[t], type)
+            # print(con_dict[t], type)
+            out_file_type = re.sub(".txt", '_', out_file) + t + '.txt'
+            print(out_file_type)
             types = type.split(',')
             for each_type in types:
                 res = LTP_parse_content(con_dict[t], each_type)
+                # print(res)
                 if out_file is not None:
-                    with open(out_file, 'w+') as out_f:
+                    with open(out_file_type, 'w+') as out_f:
                         for each_w in res[each_type]:
-                            out_f.write(each_w + ' ')
+                            out_f.write(str(each_w) + ' ')
                         out_f.write('\n')
-
-
 
 
 def LTP_parse_content(content, type):
@@ -169,7 +176,7 @@ if __name__ == "__main__":
                 with open(ARGS.output, 'w+') as out_f:
                     for each_t in types:
                         for each_w in res[each_t]:
-                            out_f.write(each_w + ' ')
+                            out_f.write(str(each_w) + ' ')
                         out_f.write('\n')
         else:
             parser.print_help()
@@ -183,7 +190,15 @@ if __name__ == "__main__":
                     out.write(res)
         if ARGS.type is not None:
             out_file = None if ARGS.output is None else ARGS.output
-            print(LTP_parse_file_type(ARGS.file, ARGS.type, out_file))
+            LTP_parse_file_type(ARGS.file, ARGS.type, out_file)
+
+        else:
+            out_file = None if ARGS.output is None else ARGS.output
+            res = LTP_parse_file(ARGS.file)
+            print(res)
+            if ARGS.output is not None:
+                with open(ARGS.output, 'w+') as out:
+                    out.write(res)
 
     else:
         parser.print_help()

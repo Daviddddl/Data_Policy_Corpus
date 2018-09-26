@@ -119,11 +119,11 @@ class crawler:
 
     def run(self):
         while not self.is_finish():
-            c.get_html()
-            c.get_urls()
-            c.transformation()
-            c.print_urls()
-            c.switch_url()
+            self.get_html()
+            self.get_urls()
+            self.transformation()
+            self.print_urls()
+            self.switch_url()
 
 
 if __name__ == '__main__':

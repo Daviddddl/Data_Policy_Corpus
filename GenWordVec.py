@@ -1,8 +1,10 @@
 import word2vec
 import LTPez
+import os
 
-vec_model_path = './data/corpusWord2Vec.bin'
-tmp_file_path = './data/tmp.txt'
+vec_model_path = './vec_res/corpusWord2Vec.bin'
+tmp_file_path = './tmp_vec.txt'
+rootdir = './ltp_res'
 
 
 def genVecFromStr(content):
@@ -17,6 +19,15 @@ def genVecFromFile(file):
 
 if __name__ == '__main__':
 
-    genVecFromFile('./data/ltpres.txt')
-    model = word2vec.load(vec_model_path)
-    print(model.vectors)
+    files_list = os.listdir(rootdir)
+    for line in files_list:
+        filepath = os.path.join(rootdir, line)
+        if os.path.isdir(filepath):
+            print("dir:" + filepath)
+        if os.path.isfile(filepath):
+            if 'context' in filepath:
+                # print("file:" + filepath)
+                vec_model_path = './vec_res/' + filepath[10:-4] + '_vec.bin'
+                genVecFromFile(filepath)
+                model = word2vec.load(vec_model_path)
+                print(vec_model_path)
