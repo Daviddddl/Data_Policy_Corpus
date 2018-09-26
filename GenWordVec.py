@@ -4,8 +4,8 @@ import os
 
 vec_model_path = './vec_res/corpusWord2Vec.bin'
 tmp_file_path = './tmp_vec.txt'
-rootdir = './ltp_res'
-
+# rootdir = './ltp_res'
+rootdir = './nega_webs'
 
 def genVecFromStr(content):
     with open(tmp_file_path, 'w+') as f:
@@ -25,9 +25,10 @@ if __name__ == '__main__':
         if os.path.isdir(filepath):
             print("dir:" + filepath)
         if os.path.isfile(filepath):
-            if 'context' in filepath:
-                # print("file:" + filepath)
-                vec_model_path = './vec_res/' + filepath[10:-4] + '_vec.bin'
-                genVecFromFile(filepath)
-                model = word2vec.load(vec_model_path)
-                print(vec_model_path)
+            # if 'context' in filepath:
+            #     print("file:" + filepath)
+                # vec_model_path = './vec_res/' + filepath[10:-4] + '_vec.bin'
+                # genVecFromFile(filepath)
+                # model = word2vec.load(vec_model_path)
+                # print(vec_model_path)
+            print("file:" + filepath[10:-16] + filepath[-10:-4])

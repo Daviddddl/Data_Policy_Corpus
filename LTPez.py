@@ -32,13 +32,21 @@ def LTP_parse(content):
     return result
 
 
-def LTP_parse_file(file):
+def LTP_parse_file(file, type, out_file):
+    print("Now is： " + str(file))
     f = open(file, 'r')
     content = ""
     for line in f:
         content += line.strip()
-    return LTP_parse(content)
 
+    for each_type in type.split(','):
+        res = LTP_parse_content(content, each_type)
+        # print(res)
+        if out_file is not None:
+            with open(out_file, 'w+') as out_f:
+                for each_w in res[each_type]:
+                    out_f.write(str(each_w) + ' ')
+                out_f.write('\n')
 
 def LTP_parse_file_type(file, type, out_file):
     data_types = 'title,context'.split(',')
@@ -50,8 +58,7 @@ def LTP_parse_file_type(file, type, out_file):
             # print(con_dict[t], type)
             out_file_type = re.sub(".txt", '_', out_file) + t + '.txt'
             print(out_file_type)
-            types = type.split(',')
-            for each_type in types:
+            for each_type in type.split(','):
                 res = LTP_parse_content(con_dict[t], each_type)
                 # print(res)
                 if out_file is not None:
@@ -182,23 +189,12 @@ if __name__ == "__main__":
             parser.print_help()
             sys.exit(1)
     elif ARGS.file is not None and ARGS.content is None:
-        if ARGS.parser is not None:
-            res = LTP_parse_file(ARGS.file)
-            print(res)
-            if ARGS.output is not None:
-                with open(ARGS.output, 'w+') as out:
-                    out.write(res)
-        if ARGS.type is not None:
+        if ARGS.type is not None and ARGS.parser is None:
             out_file = None if ARGS.output is None else ARGS.output
             LTP_parse_file_type(ARGS.file, ARGS.type, out_file)
-
         else:
             out_file = None if ARGS.output is None else ARGS.output
-            res = LTP_parse_file(ARGS.file)
-            print(res)
-            if ARGS.output is not None:
-                with open(ARGS.output, 'w+') as out:
-                    out.write(res)
+            LTP_parse_file(ARGS.file, ARGS.type, out_file)
 
     else:
         parser.print_help()
