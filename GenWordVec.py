@@ -1,8 +1,8 @@
 import word2vec
 import LTPez
-import os
+import os, linecache
 
-vec_model_path = './vec_res/corpusWord2Vec.bin'
+vec_model_path = './vec_neg/corpusWord2Vec.bin'
 tmp_file_path = './tmp_vec.txt'
 # rootdir = './ltp_res'
 rootdir = './nega_webs'
@@ -20,8 +20,8 @@ def genVecFromFile(file):
 if __name__ == '__main__':
 
     files_list = os.listdir(rootdir)
-    for line in files_list:
-        filepath = os.path.join(rootdir, line)
+    for each_file in files_list:
+        filepath = os.path.join(rootdir, each_file)
         if os.path.isdir(filepath):
             print("dir:" + filepath)
         if os.path.isfile(filepath):
@@ -31,4 +31,10 @@ if __name__ == '__main__':
                 # genVecFromFile(filepath)
                 # model = word2vec.load(vec_model_path)
                 # print(vec_model_path)
-            print("file:" + filepath[10:-16] + filepath[-10:-4])
+            # print("file:" + filepath[11:-16] + filepath[-10:-4])
+
+            vec_model_path = './vec_neg/' + filepath[11:-16] + filepath[-10:-4] + '_vec.bin'
+            genVecFromStr(linecache.getline(filepath, 2))
+            model = word2vec.load(vec_model_path)
+            print(vec_model_path)
+            # model.vectors[1]
