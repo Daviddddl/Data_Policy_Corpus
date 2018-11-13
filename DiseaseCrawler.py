@@ -45,7 +45,7 @@ def other_DBs(each_tr):
     return tables
 
 
-def linkDB():
+def linkDB(each_tr):
     return "https://www.genome.jp/dbget-bin/get_linkdb?disease+"
 
 
