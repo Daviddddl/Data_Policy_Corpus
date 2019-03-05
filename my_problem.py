@@ -2,9 +2,9 @@
 from tensor2tensor.utils import registry
 from tensor2tensor.data_generators import problem, text_problems
 
+
 @registry.register_problem
 class MyProblem(text_problems.Text2ClassProblem):
-
     vec_path = ''
 
     @property

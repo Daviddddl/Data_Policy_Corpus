@@ -114,7 +114,7 @@ class Extractor():
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='数据政策语料库爬虫工具，David_DDL 制作')
+    parser = argparse.ArgumentParser(description='数据政策语料库爬虫工具')
     parser.add_argument('-u', '--url', help="Type: Str. Input the web's url")
     parser.add_argument('-a', '--all', type=bool, default=False,
                         help="Type: bool. Default: False. Get the web title, details and context.")
@@ -124,8 +124,8 @@ if __name__ == '__main__':
     parser.add_argument('-c', '--context', type=bool, default=False,
                         help="Type: bool. Default: False. Get the web context")
     parser.add_argument('-o', '--output', help="Type: Str. Output file path")
-    parser.add_argument('-s', '--simple', help="Type: Str. Simple version. And -s is the encoding which u need to specify.")
-
+    parser.add_argument('-s', '--simple', help="Type: Str. Simple version. And -s is the encoding "
+                                               "which u need to specify.")
 
     ARGS = parser.parse_args()
     print(ARGS)
