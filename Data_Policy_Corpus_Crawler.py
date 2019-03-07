@@ -1,8 +1,11 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import argparse
+import re
+import sys
+
 import requests as req
-import re, argparse, sys
 from bs4 import BeautifulSoup
 
 DBUG = 0
