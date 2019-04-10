@@ -1,7 +1,9 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
+from __future__ import unicode_literals
 
 import argparse
+import json
 import re
 import sys
 
@@ -145,30 +147,30 @@ if __name__ == '__main__':
 
         if ext.getAll()['flag'] is True:
             if ARGS.all is True:
-                print(ext.getAll())
+                # print(ext.getAll())
                 if ARGS.output is not None:
                     with open(ARGS.output, 'w+') as f:
-                        f.write(str(ext.getAll()))
+                        f.write(json.dumps(ext.getAll(), ensure_ascii=False))
             if ARGS.title is True:
-                print(ext.getAll()['title'])
+                # print(ext.getAll()['title'])
                 if ARGS.output is not None:
                     with open(ARGS.output, 'w+') as f:
-                        f.write(str(ext.getAll()['title']))
+                        f.write(json.dumps(ext.getAll()['title'], ensure_ascii=False))
             if ARGS.details is True:
-                print(ext.getAll()['detail'])
+                # print(ext.getAll()['detail'])
                 if ARGS.output is not None:
                     with open(ARGS.output, 'w+') as f:
-                        f.write(str(ext.getAll()['detail']))
+                        f.write(json.dumps(ext.getAll()['detail'], ensure_ascii=False))
             if ARGS.context is True:
-                print(ext.getAll()['context'])
+                # print(ext.getAll()['context'])
                 if ARGS.output is not None:
                     with open(ARGS.output, 'w+') as f:
-                        f.write(str(ext.getAll()['context']))
+                        f.write(json.dumps(ext.getAll()['context'], ensure_ascii=False))
         else:
-            print('传入的URL有误，网站无此链接！')
+            # print('传入的URL有误，网站无此链接！')
             if ARGS.output is not None:
                 with open(ARGS.output, 'w+') as f:
-                    f.write('传入的URL有误，网站无此链接！')
+                    f.write(json.dumps({'title': '传入的URL有误，网站无此链接！'}, ensure_ascii=False))
     else:
         parser.print_help()
         sys.exit(0)
