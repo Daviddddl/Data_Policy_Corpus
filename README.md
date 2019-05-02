@@ -14,3 +14,5 @@ python Data_Policy_Corpus_Crawler.py
 python LTPez.py -c "众所周知，我有一个伟大的梦想" -t doc
 
 具体有哪些type，请参考 python LTPez.py -c "众所周知，我有一个伟大的梦想" -p 1
+
+后续更新仓库：https://github.com/H160401801/policy_textClassier
